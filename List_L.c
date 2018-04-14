@@ -9,6 +9,8 @@ typedef enum {
 	OK = 1
 }Status;
 
+
+/* 单链表 */
 typedef struct LNode {
 	ElemType data;
 	struct LNode *next;
@@ -119,6 +121,103 @@ void MergeList_L(LinkList La, LinkList Lb)
 	pc->next = pa ? pa : pb;
 	free(Lb);				//释放Lb头结点
 }//MergeList_L
+
+
+/* 静态链表(未测试) */
+#define MAXSIZE 1000	//链表最大长度
+
+typedef struct {
+	ElemType data;
+	int cur;
+}component,SLinkList[MAXSIZE];
+
+int LocateElem_SL(SLinkList S, ElemType e)
+/* 在静态单链线性表L中查找第1个值为e的元素
+	若找到，则返回它在L中的位序，否则返回0*/
+{
+	int i = S[0].cur;			//i指示表中第一个结点
+	while (i && S[i].data != e)	//在表中顺链查找
+		i = S[i].cur;
+	return i;
+}//LocateElem_SL
+
+
+void InitSpace_SL(SLinkList space)
+/* 将一维数组space中各分量链成一个备用链表，space[0].cur为头指针
+	0表示空指针 */
+{
+	int i;
+	for (i = 0;i < MAXSIZE - 1;++i)
+		space[i] = i + 1;
+	space[MAXSIZE - 1].cur = 0;
+}//InitSpace_SL
+
+
+int Malloc_SL(SLinkList space)
+/* 若备用空间链表非空，则返回分配的结点下标，否则返回0 */
+{
+	int i = space[0].cur;
+	if (space[0].cur)
+		space[0].cur = space[i].cur;
+	return i;
+}//Malloc_SL
+
+
+void Free_SL(SLinkList space, int k)
+/* 将下标为k的空闲点回收到备用链表 */
+{
+	space[k].cur = space[0].cur;
+	space[0].cur = k;
+}//Free_SL
+
+
+void difference(SLinkList space, int *S)
+/* 依次输入集合A和集合B的元素，求不同值并建立静态链表
+	S为其头指针。假设备用空间足够大 ,space[0].cur为其头指针*/
+{
+	int m, n, i, j, *r, *p, k;
+	ElemType b;
+	InitSpace_SL(space);		//初始化备用空间
+	S = Malloc_SL(space);		//生成S的头结点
+	r = S;
+	puts("输入A和B的元素个数");
+	scanf("%d%d", &m, &n);
+	for (i = 1;j <= m; ++j)		//建立集合A的链表
+	{
+		i = Malloc_SL(space);	//分配结点
+		printf("输入A的第%d个元素值\n",i);
+		scanf("%d", &space[i].data);
+		space[*r].cur = i;		//插入到表尾
+		*r = i;
+	}//for
+	space[*r].cur = 0;			//尾结点的指针为空
+	for (j = 1;j <= n;++j)		//依次输入B的元素，若不在当前表中，则插入，否则删除
+	{
+		printf("输入A的第%d个元素值\n", j);
+		scanf("%d", b);
+		p = S;
+		k = space[*S].cur;		//k指向集合A中第一个结点
+		while (k != space[r].cur && space[k].data != b)
+		{						//在当前表中查找
+			*p = k;
+			k = space[k].cur;
+		}//while
+		if (k == space[*r].cur)	//当前表中不存在该元素，插入在r所指结点之后，且r的位置不变
+		{
+			i = Malloc_SL(space);
+			space[i].data = b;
+			space[i].cur = space[*r].cur;
+			space[r].cur = i;
+		}//if
+		else					//该元素已在表中，删除
+		{
+			space[*p].cur = space[k].cur;
+			Free_SL(space, *k);
+			if (*r == *k)
+				*r = *p;
+		}//else
+	}//for
+}//difference
 
 
 /**********************************************************
