@@ -10,21 +10,21 @@ typedef enum {
 }Status;
 
 
-#define STACK_INIT_SIZE 100		//´æ´¢¿Õ¼ä³õÊ¼·ÖÅäÁ¿
-#define STACKINCREMENT  10		//´æ´¢¿Õ¼ä·ÖÅäÔöÁ¿
+#define STACK_INIT_SIZE 100		//å­˜å‚¨ç©ºé—´åˆå§‹åˆ†é…é‡
+#define STACKINCREMENT  10		//å­˜å‚¨ç©ºé—´åˆ†é…å¢žé‡
 
 typedef struct {
-	SElemType *base;			//ÔÚÕ»¹¹ÔìÖ®Ç°ºÍÏú»ÙÖ®ºó£¬baseµÄÖµÎªNULL
-	SElemType *top;				//Õ»¶¥Ö¸Õë
-	int stacksize;				//µ±Ç°ÒÑ·ÖÅäµÄ´æ´¢¿Õ¼ä£¬ÒÔÔªËØÎÊµ¥Î»
+	SElemType *base;			//åœ¨æ ˆæž„é€ ä¹‹å‰å’Œé”€æ¯ä¹‹åŽï¼Œbaseçš„å€¼ä¸ºNULL
+	SElemType *top;				//æ ˆé¡¶æŒ‡é’ˆ
+	int stacksize;				//å½“å‰å·²åˆ†é…çš„å­˜å‚¨ç©ºé—´ï¼Œä»¥å…ƒç´ é—®å•ä½
 }SqStack;
 
 
 Status InitStack(SqStack *S)
-/* ¹¹ÔìÒ»¸ö¿ÕÕ» */
+/* æž„é€ ä¸€ä¸ªç©ºæ ˆ */
 {
 	S->base = (SElemType*)malloc(STACK_INIT_SIZE * sizeof(SElemType));
-	if (!S->base)				//´æ´¢·ÖÅäÊ§°Ü
+	if (!S->base)				//å­˜å‚¨åˆ†é…å¤±è´¥
 		exit(OVERFLOW);
 	S->top = S->base;
 	S->stacksize = STACK_INIT_SIZE;
@@ -33,7 +33,7 @@ Status InitStack(SqStack *S)
 
 
 Status GetTop(SqStack S, SElemType *e)
-/* ²åÈëÔªËØeÎªÐÂµÄÕ»¶¥ÔªËØ */
+/* è‹¥æ ˆä¸ç©ºåˆ™ç”¨eè¿”å›žSçš„æ ˆé¡¶å…ƒç´  */
 {
 	if (S.top == S.base)
 		return ERROR;
@@ -43,13 +43,13 @@ Status GetTop(SqStack S, SElemType *e)
 
 
 Status Push(SqStack *S, SElemType e)
-/* ²åÈëÔªËØeÎªÐÂµÄÕ»¶¥ÔªËØ */
+/* æ’å…¥å…ƒç´ eä¸ºæ–°çš„æ ˆé¡¶å…ƒç´  */
 {
-	if (S->top - S->base >= S->stacksize)	//Õ»Âú£¬×·¼Ó´æ´¢¿Õ¼ä
+	if (S->top - S->base >= S->stacksize)	//æ ˆæ»¡ï¼Œè¿½åŠ å­˜å‚¨ç©ºé—´
 	{
-		S->base = (SElemType*)relloc(S->base, (S->stacksize + STACKINCREMENT) * sizeof(SElemType));
+		S->base = (SElemType*)realloc(S->base, (S->stacksize + STACKINCREMENT) * sizeof(SElemType));
 		if (!S->base)
-			exit(OVERFLOW);					//´æ´¢·ÖÅäÊ§°Ü
+			exit(OVERFLOW);					//å­˜å‚¨åˆ†é…å¤±è´¥
 		S->top = S->base + S->stacksize;
 		S->stacksize += STACKINCREMENT;
 	}
@@ -59,11 +59,39 @@ Status Push(SqStack *S, SElemType e)
 
 
 Status Pop(SqStack *S, SElemType *e)
-/* ÈôÕ»²»¿Õ£¬ÔòÉ¾³ýSµÄÕ»¶¥ÔªËØ£¬ÓÃe·µ»ØÆäÖµ
-   ³É¹¦·µ»ØOK£»·ñÔò·µ»ØERROR	*/
+/* è‹¥æ ˆä¸ç©ºï¼Œåˆ™åˆ é™¤Sçš„æ ˆé¡¶å…ƒç´ ï¼Œç”¨eè¿”å›žå…¶å€¼
+   æˆåŠŸè¿”å›žOKï¼›å¦åˆ™è¿”å›žERROR	*/
 {
 	if (S->top == S->base)
 		return ERROR;
 	*e = *--S->top;
 	return OK;
 }//Pop
+
+
+/* æµ‹è¯• */
+int main(void)
+{
+	int i;
+	SElemType e;
+	SqStack S;
+	InitStack(&S);
+	
+	printf("è¿›æ ˆæµ‹è¯•\n");
+	for (i = 0;i < 123;i++)
+	{
+		Push(&S, i);
+		GetTop(S, &e);
+		printf("æ ˆé¡¶å…ƒç´ =%d\tæ ˆé•¿åº¦%d\n", e, S.stacksize);
+	}
+
+	printf("å‡ºæ ˆæµ‹è¯•\n");
+	for (i = 0;i < 123;i++)
+	{
+		Pop(&S, &e);
+		printf("å…ƒç´ %då‡ºæ ˆ\tæ ˆé•¿åº¦%d\n", e, S.stacksize);
+	}
+
+	printf("æŒ‰ä¸‹ä»»æ˜“å»ºé€€å‡º");
+	while (!kbhit());
+}
