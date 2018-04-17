@@ -35,10 +35,15 @@ void PrintMaze(MazeType maze[10][10])
 		x = 0;
 		while (x<=9)			//打印地图
 		{
-			if (maze[y][x])
-				printf(" 0");
-			else
-				printf(" \1");
+			switch (maze[y][x])
+			{
+			case 0:printf("■");break;
+			case 1:printf("  ");break;
+			case 2:printf("→");break;
+			case 3:printf("↓");break;
+			case 4:printf("←");break;
+			case 5:printf("↑");break;
+			}	
 			x++;
 		}
 		y++;
@@ -47,13 +52,14 @@ void PrintMaze(MazeType maze[10][10])
 }
 
 
-void PrintStack(SqStack S)
+void PrintStack(MazeType maze[10][10], SqStack S)
 /* 从栈S的底部开始打印到栈顶 */
 {
 	SElemType *p = S.base;
 	while (p != S.top)
 	{
 		printf("%d ：当前位置：（%d，%d） 往方向%d\n", p->ord, p->seat.x, p->seat.y, p->di);
+		maze[p->seat.y][p->seat.x] = p->di + 1;  //为了在地图上显示路径，对地图做了下处理
 		p++;
 	}
 }
@@ -89,10 +95,10 @@ Status MazePath(SqStack *S, MazeType maze[10][10], PosType start, PosType end)
 /*  若迷宫maze存在从入口start走到出口end的通道
 	则求得一条存放在栈S中，并返回OK，否则返回ERROR */
 {
-	PosType curpos;							//设定“当前位置”为“入口位置”
+	PosType curpos;							
 	SElemType e;
 	int curstep = 1;						//探索第一步
-	curpos.x = start.x;
+	curpos.x = start.x;						//设定“当前位置”为“入口位置”
 	curpos.y = start.y;
 	InitStack(S);
 	do
@@ -133,8 +139,8 @@ Status MazePath(SqStack *S, MazeType maze[10][10], PosType start, PosType end)
 int main(void)
 {
 	SqStack S;
-	PosType start = { 1,1 };
-	PosType end = { 8,8 };
+	PosType start;
+	PosType end;
 	PrintMaze(maze);
 
 	printf("输入起点的x值和y值\n");
@@ -145,7 +151,7 @@ int main(void)
 		printf("成功走出迷宫\n");
 	else
 		printf("无法找到出口\n");
-	PrintStack(S);
+	PrintStack(maze, S);
 	PrintMaze(maze);
 	system("pause");
 	return 0;
