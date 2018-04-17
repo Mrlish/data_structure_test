@@ -104,8 +104,8 @@ Status MazePath(SqStack *S, MazeType maze[10][10], PosType start, PosType end)
 			Push(S, e);
 			if (curpos.x == end.x && curpos.y == end.y)
 				return OK;					//到达出口
-			curstep++;
 			curpos = NextPos(curpos, 1);	//探索下一步
+			curstep++;
 		}
 		else								//当前位置不能通过
 		{
@@ -120,6 +120,7 @@ Status MazePath(SqStack *S, MazeType maze[10][10], PosType start, PosType end)
 				if (e.di < 4)
 				{
 					e.di++;					//换下一个方向探索
+					Push(S, e);
 					curpos = NextPos(e.seat, e.di);
 				}
 			}
