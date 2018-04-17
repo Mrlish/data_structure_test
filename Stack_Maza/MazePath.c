@@ -136,6 +136,11 @@ int main(void)
 	PosType start = { 1,1 };
 	PosType end = { 8,8 };
 	PrintMaze(maze);
+
+	printf("输入起点的x值和y值\n");
+	scanf("%d%d", &start.x, &start.y);
+	printf("输入终点的x值和y值\n");
+	scanf("%d%d", &end.x, &end.y);
 	if (MazePath(&S, maze, start, end))
 		printf("成功走出迷宫\n");
 	else
