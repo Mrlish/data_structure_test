@@ -43,6 +43,7 @@ void PrintMaze(MazeType maze[10][10])
 			case 3:printf("↓");break;
 			case 4:printf("←");break;
 			case 5:printf("↑");break;
+			case 6:printf(" X");break;
 			}	
 			x++;
 		}
@@ -103,9 +104,10 @@ Status MazePath(SqStack *S, MazeType maze[10][10], PosType start, PosType end)
 	InitStack(S);
 	do
 	{
-		if (maze[curpos.y][curpos.x])		//当前位置可通过
+		if (maze[curpos.y][curpos.x]  &&
+			maze[curpos.y][curpos.x] != 6)	//当前位置可通过
 		{
-			maze[curpos.y][curpos.x] = 0;	//留下足迹
+			maze[curpos.y][curpos.x] = 6;	//留下足迹
 			e = ElemAss(curstep, curpos, 1);
 			Push(S, e);
 			if (curpos.x == end.x && curpos.y == end.y)
@@ -120,7 +122,7 @@ Status MazePath(SqStack *S, MazeType maze[10][10], PosType start, PosType end)
 				Pop(S, &e);					//退栈
 				while (S->top != S->base && e.di == 4)
 				{
-					maze[e.seat.y][e.seat.x] = 0;
+					maze[e.seat.y][e.seat.x] = 6;
 					Pop(S, &e);				//留下不能通过标记，并退一格
 				}
 				if (e.di < 4)
