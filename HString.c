@@ -118,6 +118,52 @@ Status SubString(HString *Sub, HString S, int pos, int len)
 }//SubString
 
 
+#define NEXT_SIZE 100
+int next[NEXT_SIZE];
+
+
+void get_next(HString T, int next[NEXT_SIZE])
+/* 求模式串T的next值并存入数组next */
+{
+	int i = 1, j = 0;
+	while (i < T.length)
+	{
+		if (j == 0 || T.ch[i - 1] && T.ch[j - 1])
+		{
+			++i;
+			++j;
+			if (T.ch[i - 1] != T.ch[j - 1])
+				next[i] = j;
+			else
+				next[i] = next[j];
+		}
+		else
+			j = next[j];
+	}
+}//get_next
+
+
+int Index_KMP(HString S, HString T, int pos)
+/* 利用模式串T的next函数求T在主串S中第pos个字符之后的位置的KMP算法 */
+{
+	int i = pos, j = 1;
+	while (i <= S.length && j <= T.length)
+	{
+		if (j == 0 || S.ch[i - 1] == T.ch[j - 1])
+		{
+			++i;			//继续比较后继字符
+			++j;
+		}
+		else
+			j = next[j];	//模式串向右移动
+	}
+	if (j > T.length)		//匹配成功
+		return i - T.length;
+	else
+		return 0;
+}//Index_KMP
+
+
 /* 测试 */
 int main(void)
 {
@@ -128,6 +174,12 @@ int main(void)
 	printf("链接字符串：%s\n", s3.ch);
 	SubString(&s1,s3,2,4);
 	printf("取第2个字符起后面4个：%s\n", s1.ch);
+
+	/* KMP算法测试 */
+	StrAssign(&s1, "acabaabaabcacaabc");
+	StrAssign(&s2, "aabc");
+	get_next(s2, next);
+	printf("匹配位置：%d", Index_KMP(s1, s2, 1));
 	system("pause");
 }
 
