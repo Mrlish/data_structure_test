@@ -55,7 +55,7 @@ Status InitArray(Array *A, int dim, ...)
 	if (!A->constants)
 		exit(OVERFLOW);
 	A->constants[dim - 1] = 1;		//L=1,指针的增减以元素大小为单位
-	for (i = dim - 1;i >= 0;--i)
+	for (i = dim - 2;i >= 0;--i)
 		A->constants[i] = A->bounds[i + 1] * A->constants[i + 1];
 	return OK;
 }//InitArray
@@ -85,7 +85,7 @@ Status Locate(Array A, va_list ap, int *off)
 {
 	int i, ind;
 	*off = 0;
-	for ( i = 0; i < A.dim; i++)
+	for ( i = 0; i < A.dim; ++i)
 	{
 		ind = va_arg(ap, int);
 		if (ind < 0 || ind >= A.bounds[i])
@@ -103,7 +103,7 @@ Status Value(Array A, ElemType *e, ...)
 	int off;
 	Status result;
 	va_list ap;
-	va_start(ap, *e);
+	va_start(ap, e);
 	if ((result = Locate(A, ap, &off)) <=0)
 		return result;
 	*e = *(A.base + off);
@@ -111,13 +111,29 @@ Status Value(Array A, ElemType *e, ...)
 }
 
 
+Status Assign(Array *A, ElemType e, ...)
+/* A是n维素组，e为元素变量，随后是n个下标
+	若下标不超界，则将e的值赋给所指定的A的元素，并返回OK */
+{
+	Status result;
+	va_list ap;
+	int off;
+	va_start(ap, e);
+	if ((result = Locate(*A, ap, &off)) <= 0)
+		return result;
+	*(A->base+off) = e;
+	return OK;
+}//Assign
+
+
+/* 测试 */
 int main(void)
 {
 	Array a1;
-	int off;
 	ElemType a;
 	InitArray(&a1, 3, 3, 3, 3);
-	Value(a1, &a, 1, 1, 1);
-	printf("%d", a);
+	Assign(&a1,10, 2, 2, 2);
+	Value(a1, &a, 2, 2, 2);
+	printf("%d\n", a);
 	system("pause");
 }
