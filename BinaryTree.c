@@ -119,10 +119,168 @@ BiTree CopyBinaryTree(BiTree T)
 }
 
 
+typedef BiTree SElemType;
+
+#define STACK_INIT_SIZE 100		//存储空间初始分配量
+#define STACKINCREMENT  10		//存储空间分配增量
+
+typedef struct {
+	SElemType *base;			//在栈构造之前和销毁之后，base的值为NULL
+	SElemType *top;				//栈顶指针
+	int stacksize;				//当前已分配的存储空间，以元素问单位
+}SqStack;
+
+
+Status InitStack(SqStack *S)
+/* 构造一个空栈 */
+{
+	S->base = (SElemType*)malloc(STACK_INIT_SIZE * sizeof(SElemType));
+	if (!S->base)				//存储分配失败
+		exit(OVERFLOW);
+	S->top = S->base;
+	S->stacksize = STACK_INIT_SIZE;
+	return OK;
+}//InitStack
+
+
+int StackEmpty(SqStack s)
+/* 判断栈是否为空 */
+{
+	if (s.stacksize == 0 || s.base == NULL)
+		return 0;
+	else
+		return  1;
+}
+
+
+
+Status Push(SqStack *S, SElemType e)
+/* 插入元素e为新的栈顶元素 */
+{
+	if (S->top - S->base >= S->stacksize)	//栈满，追加存储空间
+	{
+		S->base = (SElemType*)realloc(S->base, (S->stacksize + STACKINCREMENT) * sizeof(SElemType));
+		if (!S->base)
+			exit(OVERFLOW);					//存储分配失败
+		S->top = S->base + S->stacksize;
+		S->stacksize += STACKINCREMENT;
+	}
+	*S->top++ = e;
+	return OK;
+}//Push
+
+
+Status Pop(SqStack *S, SElemType *e)
+/* 若栈不空，则删除S的栈顶元素，用e返回其值
+成功返回OK；否则返回ERROR	*/
+{
+	if (S->top == S->base)
+		return ERROR;
+	*e = *--S->top;
+	return OK;
+}//Pop
+
+
+Status GetTop(SqStack S, SElemType *e)
+/* 若栈不空则用e返回S的栈顶元素 */
+{
+	if (S.top == S.base)
+		return ERROR;
+	*e = *(S.top - 1);
+	return OK;
+}//InitStack
+
+
+Status PreOrderTraverse1(BiTree T)
+/* 先序遍历非递归实现 */
+{
+	SqStack S;BiTree p;
+	InitStack(&S);p = T;
+	while (p != NULL || StackEmpty(S))
+	{
+		if (p != NULL)
+		{
+			VistTree(p->data);
+			Push(&S, p);
+			p = p->lchild;
+		}
+		else
+		{
+			Pop(&S, &p);p = p->rchild;
+		}
+	}
+	return OK;
+}//PreOrderTraverse
+
+
+Status MiddleTree(BiTree T)
+/* 中序遍历二叉树非递归实现 */
+{
+	SqStack S;BiTree p;
+	InitStack(&S);p = T;
+	while (p != NULL || StackEmpty(S))
+	{
+		if (p != NULL)
+		{
+			Push(&S, p);
+			p = p->lchild;
+		}
+		else
+		{
+			Pop(&S, &p);
+			VistTree(p->data);
+			p = p->rchild;
+		}
+	}
+	return OK;
+}//MiddleTree
+
+
+#define MAXSIZE 100
+
+
+Status LastOrderTraverse(BiTree T)
+/* 非递归后序遍历 */
+{
+ //用tag数组标记对应的结点是否被访问过
+	int sign = -1, tag[MAXSIZE];
+	SqStack S;
+	BiTree p, p1;
+	p = T;
+	InitStack(&S);
+	while (p != NULL || StackEmpty(S))
+	{
+		if (p != NULL)
+		{
+			Push(&S, p);
+			tag[++sign] = 0;
+			p = p->lchild;
+		}
+		else
+		{
+			if (tag[sign] == 0)
+			{//如果结点未被访问则取出栈顶元素，访问栈顶结点的右子树
+				GetTop(S, &p);
+				tag[sign] = 1;
+				p = p->rchild;
+			}
+			else
+			{//如果该结点被访问过则元素出栈输出
+				Pop(&S, &p1);
+				sign--;
+				VistTree(p1->data);
+			}
+		}
+	}
+	return OK;
+}//LastOrderTraverse
+
+
+
 /* 测试 */
 int main(void)
 {
-	BiTree T1 , T2;
+	BiTree T1 = NULL,T2;
 	int count;
 	CreatBinaryTree(T1);
 	PreOrderTraverse(T1, VistTree);
@@ -132,5 +290,7 @@ int main(void)
 	printf("深度：%d", count);
 	T2 = CopyBinaryTree(T1);
 	PreOrderTraverse(T2, VistTree);
+	MiddleTree(T1);
+	LastOrderTraverse(T1);
 	system("pause");
 }
